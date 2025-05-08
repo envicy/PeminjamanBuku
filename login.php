@@ -32,6 +32,16 @@
         .alert {
             margin-bottom: 20px;
         }
+        .toggle-password {
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 38px;
+            z-index: 2;
+        }
+        .position-relative {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -43,11 +53,9 @@
             </div>
             
             <?php
-            // Tampilkan pesan error jika ada
             if (isset($_GET['error'])) {
                 echo '<div class="alert alert-danger">Username atau password salah!</div>';
             }
-            // Tampilkan pesan logout jika ada
             if (isset($_GET['logout'])) {
                 echo '<div class="alert alert-success">Berhasil logout.</div>';
             }
@@ -58,14 +66,31 @@
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" name="username" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 position-relative">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
+                    <span class="toggle-password" onclick="togglePassword()">
+                        👁️
+                    </span>
                 </div>
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
         </div>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                icon.textContent = '👁️';
+            }
+        }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
