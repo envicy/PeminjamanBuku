@@ -32,15 +32,16 @@
         .alert {
             margin-bottom: 20px;
         }
-        .toggle-password {
-            cursor: pointer;
-            position: absolute;
-            right: 15px;
-            top: 38px;
-            z-index: 2;
-        }
         .position-relative {
             position: relative;
+        }
+        .toggle-password-icon {
+            position: absolute;
+            top: 38px;
+            right: 15px;
+            width: 20px;
+            cursor: pointer;
+            z-index: 2;
         }
     </style>
 </head>
@@ -69,9 +70,7 @@
                 <div class="mb-3 position-relative">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
-                    <span class="toggle-password" onclick="togglePassword()">
-                        👁️
-                    </span>
+                    <img id="eyeIcon" src="image/eye.png" alt="Toggle Password" class="toggle-password-icon" onclick="togglePassword()">
                 </div>
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
@@ -81,13 +80,14 @@
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
-            const icon = document.querySelector('.toggle-password');
+            const icon = document.getElementById('eyeIcon');
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                icon.textContent = '🙈';
+                icon.src = 'image/eye-off.png';
             } else {
                 passwordInput.type = 'password';
-                icon.textContent = '👁️';
+                icon.src = 'image/eye.png';
             }
         }
     </script>
