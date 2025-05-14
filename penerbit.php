@@ -2,8 +2,8 @@
 // Mulai session
 session_start();
 
-// Cek apakah user sudah login
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+// Cek apakah user sudah login dan memiliki Jabatan Admin
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSION['Jabatan'] !== 'Admin') {
     header("Location: login.php");
     exit();
 }
@@ -11,83 +11,84 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 // Include file koneksi
 require_once 'koneksi.php';
 
-// Fungsi untuk mendapatkan ID buku baru
-function getNewBookId($koneksi) {
-    $query = "SELECT MAX(SUBSTRING(ID_Buku, 3)) as max_id FROM buku";
+// Fungsi untuk mendapatkan ID penerbit baru (sebagai saran saja)
+function getNewPublisherId($koneksi) {
+    $query = "SELECT MAX(SUBSTRING(ID_Penerbit, 3)) as max_id FROM penerbit";
     $result = mysqli_query($koneksi, $query);
     $row = mysqli_fetch_assoc($result);
     $next_id = intval($row['max_id']) + 1;
-    return 'BK' . str_pad($next_id, 3, '0', STR_PAD_LEFT);
+    return 'PB' . str_pad($next_id, 3, '0', STR_PAD_LEFT);
 }
 
-// Proses tambah buku baru
+// Proses tambah penerbit baru
 if (isset($_POST['tambah'])) {
-    $ID_Buku = getNewBookId($koneksi);
-    $Judul = mysqli_real_escape_string($koneksi, $_POST['Judul']);
-    $Tahun_Terbit = mysqli_real_escape_string($koneksi, $_POST['Tahun_Terbit']);
-    $Jumlah_Halaman = mysqli_real_escape_string($koneksi, $_POST['Jumlah_Halaman']);
     $ID_Penerbit = mysqli_real_escape_string($koneksi, $_POST['ID_Penerbit']);
+    $Nama_Penerbit = mysqli_real_escape_string($koneksi, $_POST['Nama_Penerbit']);
+    $alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
+    $Kota = mysqli_real_escape_string($koneksi, $_POST['Kota']);
     
-    $query = "INSERT INTO buku (ID_Buku, Judul, Tahun_Terbit, Jumlah_Halaman, ID_Penerbit) 
-              VALUES ('$ID_Buku', '$Judul', '$Tahun_Terbit', '$Jumlah_Halaman', '$ID_Penerbit')";
+    // Check if ID already exists
+    $check_id_query = "SELECT * FROM penerbit WHERE ID_Penerbit = '$ID_Penerbit'";
+    $check_id_result = mysqli_query($koneksi, $check_id_query);
     
-    if (mysqli_query($koneksi, $query)) {
-        $success_message = "Buku berhasil ditambahkan!";
+    if (mysqli_num_rows($check_id_result) > 0) {
+        $error_message = "ID Penerbit sudah digunakan, silakan pilih ID lain.";
     } else {
-        $error_message = "Error: " . mysqli_error($koneksi);
-    }
-}
-
-// Proses hapus buku
-if (isset($_GET['hapus'])) {
-    $ID_Buku = mysqli_real_escape_string($koneksi, $_GET['hapus']);
-    
-    // Periksa apakah buku sedang dipinjam
-    $query_check = "SELECT * FROM transaksi_peminjaman WHERE ID_Buku = '$ID_Buku' AND Status_Peminjaman != 'Dikembalikan'";
-    $result_check = mysqli_query($koneksi, $query_check);
-    
-    if (mysqli_num_rows($result_check) > 0) {
-        $error_message = "Tidak dapat menghapus buku karena sedang dipinjam!";
-    } else {
-        $query = "DELETE FROM buku WHERE ID_Buku = '$ID_Buku'";
+        $query = "INSERT INTO penerbit (ID_Penerbit, Nama_Penerbit, alamat, Kota) 
+                VALUES ('$ID_Penerbit', '$Nama_Penerbit', '$alamat', '$Kota')";
         
         if (mysqli_query($koneksi, $query)) {
-            $success_message = "Buku berhasil dihapus!";
+            $success_message = "Penerbit berhasil ditambahkan!";
         } else {
             $error_message = "Error: " . mysqli_error($koneksi);
         }
     }
 }
 
-// Proses edit buku
-if (isset($_POST['edit'])) {
-    $ID_Buku = mysqli_real_escape_string($koneksi, $_POST['ID_Buku']);
-    $Judul = mysqli_real_escape_string($koneksi, $_POST['Judul']);
-    $Tahun_Terbit = mysqli_real_escape_string($koneksi, $_POST['Tahun_Terbit']);
-    $Jumlah_Halaman = mysqli_real_escape_string($koneksi, $_POST['Jumlah_Halaman']);
-    $ID_Penerbit = mysqli_real_escape_string($koneksi, $_POST['ID_Penerbit']);
+// Proses hapus penerbit
+if (isset($_GET['hapus'])) {
+    $ID_Penerbit = mysqli_real_escape_string($koneksi, $_GET['hapus']);
     
-    $query = "UPDATE buku SET Judul='$Judul', Tahun_Terbit='$Tahun_Terbit', 
-              Jumlah_Halaman='$Jumlah_Halaman', ID_Penerbit='$ID_Penerbit' 
-              WHERE ID_Buku='$ID_Buku'";
+    // Periksa apakah penerbit memiliki buku terkait
+    $query_check = "SELECT * FROM buku WHERE ID_Penerbit = '$ID_Penerbit'";
+    $result_check = mysqli_query($koneksi, $query_check);
+    
+    if (mysqli_num_rows($result_check) > 0) {
+        $error_message = "Tidak dapat menghapus penerbit karena masih memiliki buku terkait!";
+    } else {
+        $query = "DELETE FROM penerbit WHERE ID_Penerbit = '$ID_Penerbit'";
+        
+        if (mysqli_query($koneksi, $query)) {
+            $success_message = "Penerbit berhasil dihapus!";
+        } else {
+            $error_message = "Error: " . mysqli_error($koneksi);
+        }
+    }
+}
+
+// Proses edit penerbit
+if (isset($_POST['edit'])) {
+    $ID_Penerbit = mysqli_real_escape_string($koneksi, $_POST['ID_Penerbit']);
+    $Nama_Penerbit = mysqli_real_escape_string($koneksi, $_POST['Nama_Penerbit']);
+    $alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
+    $Kota = mysqli_real_escape_string($koneksi, $_POST['Kota']);
+    
+    $query = "UPDATE penerbit SET Nama_Penerbit='$Nama_Penerbit', alamat='$alamat', Kota='$Kota' 
+              WHERE ID_Penerbit='$ID_Penerbit'";
     
     if (mysqli_query($koneksi, $query)) {
-        $success_message = "Data buku berhasil diupdate!";
+        $success_message = "Data penerbit berhasil diupdate!";
     } else {
         $error_message = "Error: " . mysqli_error($koneksi);
     }
 }
 
-// Mengambil data buku dengan nama penerbit
-$query_buku = "SELECT b.*, p.Nama_Penerbit 
-               FROM buku b 
-               JOIN penerbit p ON b.ID_Penerbit = p.ID_Penerbit
-               ORDER BY b.ID_Buku";
-$result_buku = mysqli_query($koneksi, $query_buku);
-
-// Mengambil data penerbit untuk dropdown
+// Ambil semua data penerbit
 $query_penerbit = "SELECT * FROM penerbit ORDER BY Nama_Penerbit";
 $result_penerbit = mysqli_query($koneksi, $query_penerbit);
+
+// Get suggested new ID
+$suggested_id = getNewPublisherId($koneksi);
 ?>
 
 <!DOCTYPE html>
@@ -95,7 +96,7 @@ $result_penerbit = mysqli_query($koneksi, $query_penerbit);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Buku - Sistem Peminjaman Buku</title>
+    <title>Data Penerbit - Sistem Peminjaman Buku</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -151,7 +152,7 @@ $result_penerbit = mysqli_query($koneksi, $query_penerbit);
         </button>
         <div class="navbar-nav">
             <div class="nav-item text-nowrap">
-                <a class="nav-link px-3" href="logout.php">Sign out</a>
+                <a class="nav-link px-3" href="logout.php">Log Out</a>
             </div>
         </div>
     </header>
@@ -168,7 +169,7 @@ $result_penerbit = mysqli_query($koneksi, $query_penerbit);
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="buku.php">
+                            <a class="nav-link" href="buku.php">
                                 <i class="fas fa-book me-2"></i>
                                 Data Buku
                             </a>
@@ -180,18 +181,38 @@ $result_penerbit = mysqli_query($koneksi, $query_penerbit);
                             </a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link" href="pengembalian.php">                          
+                            <a class="nav-link" href="peminjaman.php">
+                                <i class="fas fa-clipboard-list me-2"></i>
+                                Peminjaman
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="pengembalian.php">
                                 <i class="fas fa-undo-alt me-2"></i>
                                 Pengembalian
                             </a>
                         </li>
+                        <?php if ($_SESSION['Jabatan'] == 'Admin') : ?>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="penerbit.php">
+                                <i class="fas fa-building me-2"></i>
+                                Data Penerbit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="staff.php">
+                                <i class="fas fa-users me-2"></i>
+                                Data Staff
+                            </a>
+                        </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </nav>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Data Buku</h1>
+                    <h1 class="h2">Data Penerbit</h1>
                 </div>
 
                 <?php if (isset($success_message)) : ?>
@@ -200,27 +221,24 @@ $result_penerbit = mysqli_query($koneksi, $query_penerbit);
                     <div class="alert alert-danger"><?php echo $error_message; ?></div>
                 <?php endif; ?>
 
-                <!-- Form Tambah/Edit Buku -->
+                <!-- Form Tambah/Edit Penerbit -->
                 <form method="POST" class="row g-3 mb-4">
-                    <input type="hidden" name="ID_Buku" value="<?php echo isset($_GET['edit_id']) ? $_GET['edit_id'] : ''; ?>">
-                    <div class="col-md-4">
-                        <input type="text" name="Judul" class="form-control" placeholder="Judul Buku" required value="<?php echo $_GET['Judul'] ?? ''; ?>">
-                    </div>
                     <div class="col-md-2">
-                        <input type="number" name="Tahun_Terbit" class="form-control" placeholder="Tahun Terbit" required value="<?php echo $_GET['tahun'] ?? ''; ?>">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" name="Jumlah_Halaman" class="form-control" placeholder="Jumlah Halaman" required value="<?php echo $_GET['halaman'] ?? ''; ?>">
+                        <div class="input-group">
+                            <span class="input-group-text" title="Format: PNxxx">ID</span>
+                            <input type="text" name="ID_Penerbit" class="form-control" placeholder="ID Penerbit" required 
+                                value="<?php echo isset($_GET['edit_id']) ? $_GET['edit_id'] : $suggested_id; ?>" 
+                                <?php echo isset($_GET['edit_id']) ? 'readonly' : ''; ?>>
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <select name="ID_Penerbit" class="form-select" required>
-                            <option value="">-- Pilih Penerbit --</option>
-                            <?php while ($penerbit = mysqli_fetch_assoc($result_penerbit)) : ?>
-                                <option value="<?php echo $penerbit['ID_Penerbit']; ?>" <?php echo isset($_GET['penerbit']) && $_GET['penerbit'] == $penerbit['ID_Penerbit'] ? 'selected' : ''; ?>>
-                                    <?php echo $penerbit['Nama_Penerbit']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
+                        <input type="text" name="Nama_Penerbit" class="form-control" placeholder="Nama Penerbit" required value="<?php echo $_GET['nama'] ?? ''; ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="alamat" class="form-control" placeholder="Alamat" required value="<?php echo $_GET['alamat'] ?? ''; ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="Kota" class="form-control" placeholder="Kota" required value="<?php echo $_GET['Kota'] ?? ''; ?>">
                     </div>
                     <div class="col-md-1">
                         <button type="submit" name="<?php echo isset($_GET['edit_id']) ? 'edit' : 'tambah'; ?>" class="btn btn-<?php echo isset($_GET['edit_id']) ? 'warning' : 'primary'; ?>">
@@ -229,32 +247,30 @@ $result_penerbit = mysqli_query($koneksi, $query_penerbit);
                     </div>
                 </form>
 
-                <!-- Tabel Data Buku -->
+                <!-- Tabel Data Penerbit -->
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead class="table-dark">
                             <tr>
-                                <th>ID Buku</th>
-                                <th>Judul</th>
-                                <th>Tahun Terbit</th>
-                                <th>Jumlah Halaman</th>
-                                <th>Penerbit</th>
+                                <th>ID Penerbit</th>
+                                <th>Nama Penerbit</th>
+                                <th>Alamat</th>
+                                <th>Kota</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($buku = mysqli_fetch_assoc($result_buku)) : ?>
+                            <?php while ($penerbit = mysqli_fetch_assoc($result_penerbit)) : ?>
                                 <tr>
-                                    <td><?php echo $buku['ID_Buku']; ?></td>
-                                    <td><?php echo $buku['Judul']; ?></td>
-                                    <td><?php echo $buku['Tahun_Terbit']; ?></td>
-                                    <td><?php echo $buku['Jumlah_Halaman']; ?></td>
-                                    <td><?php echo $buku['Nama_Penerbit']; ?></td>
+                                    <td><?php echo $penerbit['ID_Penerbit']; ?></td>
+                                    <td><?php echo $penerbit['Nama_Penerbit']; ?></td>
+                                    <td><?php echo $penerbit['Alamat_Penerbit']; ?></td>
+                                    <td><?php echo $penerbit['Kota']; ?></td>
                                     <td>
-                                        <a href="?edit_id=<?php echo $buku['ID_Buku']; ?>&Judul=<?php echo $buku['Judul']; ?>&tahun=<?php echo $buku['Tahun_Terbit']; ?>&halaman=<?php echo $buku['Jumlah_Halaman']; ?>&penerbit=<?php echo $buku['ID_Penerbit']; ?>" class="btn btn-sm btn-warning">
+                                        <a href="?edit_id=<?php echo $penerbit['ID_Penerbit']; ?>&nama=<?php echo $penerbit['Nama_Penerbit']; ?>&alamat=<?php echo $penerbit['Alamat_Penerbit']; ?>&Kota=<?php echo $penerbit['Kota']; ?>" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="?hapus=<?php echo $buku['ID_Buku']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus buku ini?');">
+                                        <a href="?hapus=<?php echo $penerbit['ID_Penerbit']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus penerbit ini?');">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>

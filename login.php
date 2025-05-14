@@ -35,7 +35,7 @@
         .position-relative {
             position: relative;
         }
-        .toggle-password-icon {
+        .toggle-Password-icon {
             position: absolute;
             top: 38px;
             right: 15px;
@@ -55,7 +55,7 @@
             
             <?php
             if (isset($_GET['error'])) {
-                echo '<div class="alert alert-danger">Username atau password salah!</div>';
+                echo '<div class="alert alert-danger">Username atau Password salah!</div>';
             }
             if (isset($_GET['logout'])) {
                 echo '<div class="alert alert-success">Berhasil logout.</div>';
@@ -64,13 +64,13 @@
             
             <form action="proses_login.php" method="post">
                 <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <label for="Username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="Username" name="Username" required>
                 </div>
                 <div class="mb-3 position-relative">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                    <img id="eyeIcon" src="image/eye.png" alt="Toggle Password" class="toggle-password-icon" onclick="togglePassword()">
+                    <label for="Password" class="form-label">Password</label>
+                    <input type="Password" class="form-control" id="Password" name="Password" required>
+                    <img id="eyeIcon" src="image/eye.png" alt="Toggle Password" class="toggle-Password-icon" onclick="togglePassword()">
                 </div>
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
@@ -79,14 +79,14 @@
 
     <script>
         function togglePassword() {
-            const passwordInput = document.getElementById('password');
+            const PasswordInput = document.getElementById('Password');
             const icon = document.getElementById('eyeIcon');
 
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
+            if (PasswordInput.type === 'Password') {
+                PasswordInput.type = 'text';
                 icon.src = 'image/eye-off.png';
             } else {
-                passwordInput.type = 'password';
+                PasswordInput.type = 'Password';
                 icon.src = 'image/eye.png';
             }
         }

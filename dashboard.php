@@ -164,7 +164,7 @@ $result_peminjaman_terbaru = mysqli_query($koneksi, $query_peminjaman_terbaru);
                                 Pengembalian
                             </a>
                         </li>
-                        <?php if ($_SESSION['jabatan'] == 'Admin') : ?>
+                        <?php if ($_SESSION['Jabatan'] == 'Admin') : ?>
                         <li class="nav-item">
                             <a class="nav-link" href="penerbit.php">
                                 <i class="fas fa-building me-2"></i>
@@ -185,7 +185,7 @@ $result_peminjaman_terbaru = mysqli_query($koneksi, $query_peminjaman_terbaru);
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="welcome-message pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
-                    <p>Selamat datang, <?php echo $_SESSION['nama']; ?> (<?php echo $_SESSION['jabatan']; ?>)</p>
+                    <p>Selamat datang, <?php echo $_SESSION['nama']; ?> (<?php echo $_SESSION['Jabatan']; ?>)</p>
                 </div>
 
                 <div class="row">

@@ -1,10 +1,10 @@
 <?php
 $host = "localhost"; // Tambahkan :3307 jika perlu
-$username = "root";
-$password = "Hikari1223"; // Atau "" jika tidak pakai password
+$Username = "root";
+$Password = "Hikari1223"; // Atau "" jika tidak pakai Password
 $database = "dbpeminjamanbuku";
 
-$koneksi = mysqli_connect($host, $username, $password, $database);
+$koneksi = mysqli_connect($host, $Username, $Password, $database);
 
 if (!$koneksi) {
     die("Koneksi gagal: " . mysqli_connect_error());
